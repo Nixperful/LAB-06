@@ -71,15 +71,15 @@ Y corresponde al siguiente modelo:
         <id property='propiedad1' column='COLUMNA1'/>
         <result property='propiedad2' column='COLUMNA2'/>
         <result property='propiedad3' column='COLUMNA3'/>  
-        <collection property='propiedad4' ofType='DetalleUno'></collection>
-		<association property="propiedad5" javaType="DetalleDos"></association>      
+	<association property="propiedad5" javaType="DetalleDos"></association>      
+        <collection property='propiedad4' ofType='DetalleUno'></collection>		
     </resultMap>
 
     <resultMap type='DetalleUno' id='DetalleResult'>
         <id property='propiedadx' column='COLUMNAX'/>
         <result property='propiedady' column='COLUMNAY'/>
         <result property='propiedadz' column='COLUMNAZ'/> 
-		 <association property="propiedadw" javaType="DetalleDos"></association>      
+	<association property="propiedadw" javaType="DetalleDos"></association>      
     </resultMap>
     
     <resultMap type='DetalleDos' id='DetalleResult'>
