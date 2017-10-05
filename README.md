@@ -224,6 +224,9 @@ En este caso tenga en cuenta que como la operación es una transacción con vari
 
 ## Parte III (a partir del Martes)
 
+__Preliminar__: Jugar un poco con ['el juego de las ramas'](https://learngitbranching.js.org), o con la [versión 'sandbox'](https://learngitbranching.js.org/?NODEMO) de la misma. 
+
+
 Ahora, va a integrar lo antes desarrollado al ejercicio anterior (la aplicación Web que hacía uso de un 'mock' de la lógica), la cual corresponde al siguiente diseño:
 
 ![](img/MODEL1.png)
