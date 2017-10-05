@@ -364,4 +364,10 @@ Para hacer la integración, se va a reempazar el 'mock' de la lógica, por uno r
 
 	```
 
-6. Implemente el modelo de DAOs indicado en el modelo anterior, y siguiendo el esquema de inyección de dependencias plantados. Cada DAO abstracto debe tener las operaciones: load, loadByID, save y update.
+6. Implemente el modelo de DAOs indicado en el modelo anterior, y siguiendo el esquema de inyección de dependencias plantados. Cada DAO abstracto debe tener las operaciones: loadAll, load, loadByID, save y update.
+
+7. En los DAOs concretos, a partir de lo realizado en el punto 2, __usando los mappers que se supone serán inyectados__, implemente:
+    * El loadAll del DAO EPS.
+    * El loadPacienteByID del DAO Paciente.
+    * El actualizarPaciente del DAO Paciente.
+
