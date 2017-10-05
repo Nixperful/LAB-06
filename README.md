@@ -195,6 +195,9 @@ En este caso tenga en cuenta que como la operación es una transacción con vari
 	...
 	```
 
+4. Siguiendo el esquema anterior, implemente un EPSMapper que por ahora sólo tenga el método:
 
+	```java
+	public List<EPS> loadAllEPS();
+	```    
 
-    
