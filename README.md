@@ -221,3 +221,147 @@ En este caso tenga en cuenta que como la operación es una transacción con vari
 
 	Y pruebe su funcionamiento también agregando una operación a la clase 
 
+
+## Parte III (a partir del Martes)
+
+Ahora, va a integrar lo antes desarrollado al ejercicio anterior (la aplicación Web que hacía uso de un 'mock' de la lógica), la cual corresponde al siguiente diseño:
+
+![](img/MODEL1.png)
+
+Para hacer la integración, se va a reempazar el 'mock' de la lógica, por uno real, al cual se le inyectarán unos DAOs de Paciente y de EPS, a través de los cuales consultará y registrará información real a la base de datos. Los DAOs concretos que se inyectarán (a través de Guice), estarán basados en Mappers de MyBATIS, los cuales también les serán inyectados (de manera que no sea necesario preocuparse por la creación de conexiones). El diseño al que se quiere llegar, corresponde entonces al siguiente diagrama de clases:
+
+![](img/MODEL2.png)
+
+
+1. Retome el proyecto anterior (aplicación Web con un 'mock' de la lógica).
+2. Sobre dicho proyecto, cree una rama llamada 'mybatis-persistence', y cámbiese a la misma:
+
+	```bash
+	$ git branch mybatis-persistence
+	$ git checkout mybatis-persistence
+	```bash
+
+	Dado lo anterior, en adelante, para hacer 'push' de los cambios hechos a la rama, haga el 'push' tradicional, pero indicando la nueva rama:
+
+	```bash
+	$ git push URL_REPOSITORIO mybatis-persistence
+	```
+
+	también tenga en cuenta que al clonar el proyecto, por defecto lo dejará ubicado en la rama 'master'.
+
+4. Copie, del laboratorio actual, al laboratorio anterior:
+
+	* Los Mappers (xml y clases).
+	* La configuración XML de MyBatis
+
+5. Rectifique que el proyecto tenga como las dependencias de JSF/Primefaces, MyBatis+GUICE, Drivers de MySQL y H2 (se usará más adelante), y de Shiro (framework de seguridad que se usará más adelante):
+
+	```xml
+        <dependency>
+            <groupId>com.sun.faces</groupId>
+            <artifactId>jsf-api</artifactId>
+            <version>2.2.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
+            <version>2.2.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.primefaces</groupId>
+            <artifactId>primefaces</artifactId>
+            <version>5.0</version>
+        </dependency>        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency> 
+
+        <!-- MyBatis, Mybatis-Guice -->       
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-guice</artifactId>
+            <version>3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.2</version>
+        </dependency>
+        
+        <!-- Loggers -->
+        
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>apache-log4j-extras</artifactId>
+            <version>1.2.17</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        
+        <!--Dependencias de seguridad-->
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-web</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-ehcache</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <!--security-->
+        
+        <!-- Dependencias de MySQL y H2 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.36</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.191</version>
+        </dependency>
+
+
+	```
+
+6. Implemente el modelo de DAOs indicado en el modelo anterior, y siguiendo el esquema de inyección de dependencias plantados. Cada DAO abstracto debe tener las operaciones: load, loadByID, save y update.
