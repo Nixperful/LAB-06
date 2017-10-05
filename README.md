@@ -239,7 +239,7 @@ Para hacer la integración, se va a reempazar el 'mock' de la lógica, por uno r
 	```bash
 	$ git branch mybatis-persistence
 	$ git checkout mybatis-persistence
-	```bash
+	```
 
 	Dado lo anterior, en adelante, para hacer 'push' de los cambios hechos a la rama, haga el 'push' tradicional, pero indicando la nueva rama:
 
