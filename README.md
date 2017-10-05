@@ -143,7 +143,7 @@ Y corresponde al siguiente modelo:
 	* Agregue la anotación @Param a dicho parámetro, asociando a ésta el nombre con el que se referirá en la sentencia SQL:
 
 	```java
-		public Paciente getPaciente(@Param("idp") int id,@Param("tipoidp") String tipoid);
+		public Paciente loadPacienteByID(@Param("idp") int id,@Param("tipoidp") String tipoid);
 	```
 
 	* Al XML (\<select>, \<insert>, etc) asociado al método del mapper, agregue la propiedad _parameterType="map"_ .
