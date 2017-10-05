@@ -209,7 +209,7 @@ En este caso tenga en cuenta que como la operación es una transacción con vari
 	```
 	Para esto requiere:
 	
-	* Agregar una operación de tipo <update> en el mapper de paciente, que sólo cambie los datos básicos del paciente mediante una sentencia UPDATE.
+	* Agregar una operación de tipo \<update> en el mapper de paciente, que sólo cambie los datos básicos del paciente mediante una sentencia UPDATE.
 	* En la implementación de 'actualizarPaciente', hacer uso de la operación UPDATE anterior, y luego, consecutivamente insertar SÓLO las consultas que NO están aún en la base de datos. Para saber cuales no están aún en la base de datos, basta con que su identificador no haya sido inicializado (en este caso, que sea cero). 
 
 
