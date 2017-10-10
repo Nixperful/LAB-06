@@ -479,13 +479,14 @@ CREATE TABLE `CM_CONSULTAS` (
 
 9. Ahora, modifique la clase encargada de fabricar y mantener el 'inyector' de Guice, para que en lugar de hacer uso de un 'AbstractModule':
 
-```
+```java
 
-injector = createInjector(new AbstractModule() {
+        injector = createInjector(new AbstractModule() {
 
             @Override
             protected void configure() {
                 bind(ServiciosPacientes.class).to(ServiciosPacientesMock.class);
+                //...
             }
 
         }
