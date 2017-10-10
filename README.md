@@ -374,3 +374,202 @@ Para hacer la integración, se va a reempazar el 'mock' de la lógica, por uno r
     * El loadPacienteByID del DAO Paciente.
     * El actualizarPaciente del DAO Paciente.
 
+
+## Parte IV (Configuración y pruebas)
+
+1. En la raíz de su proyecto incluya un archivo 'tables.sql', el cual tendrá el Script de creación de base de datos compatible con la base de datos embebida H2:
+
+
+```sql
+CREATE TABLE CM_EPS (
+`nombre` varchar(100)  NOT NULL,
+`nit` varchar(20)  NOT NULL PRIMARY KEY
+);
+
+
+CREATE TABLE `CM_PACIENTES` (
+  `id` int(11) NOT NULL,
+  `tipo_id` varchar(2) NOT NULL,
+  `nombre` varchar(45) NOT NULL,
+  `fecha_nacimiento` date NOT NULL,
+  `EPS_nit` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`,`tipo_id`)
+);
+
+
+CREATE TABLE `CM_CONSULTAS` (
+  `idCONSULTAS` int(11) NOT NULL AUTO_INCREMENT,
+  `fecha_y_hora` datetime NOT NULL,
+  `resumen` varchar(200) NOT NULL,  
+  `costo` int(11) NOT NULL,
+  `PACIENTES_id` int(11) NOT NULL DEFAULT '0',
+  `PACIENTES_tipo_id` varchar(2) NOT NULL DEFAULT 'cc',
+  PRIMARY KEY (`idCONSULTAS`)
+  ) 
+```
+
+
+
+7. En el pom.xml, en la sección <build><plugins>, agregue el siguiente plugin para automáticamente crear, en la fase de pruebas, una base de datos embebida H2:
+
+
+```xml
+
+
+<!-- create local H2 database -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <version>1.5</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId> 
+                        <version>1.4.184</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <driver>org.h2.Driver</driver>                    
+                    <url>jdbc:h2:file:./target/db/testdb;MODE=MYSQL</url>
+                    <username>anonymous</username>
+                    <password></password>
+                    <autocommit>false</autocommit>
+                    <skip>${maven.test.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-db</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <srcFiles>                                
+                                <srcFile>tables.sql</srcFile>                                
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+```
+
+
+
+
+8. Cree un archivo de configuración alterno de MyBATIS, llamado 'mybatis-config-h2.xml' (ubicado en la misma ruta del original), el cual tenga exactamente la misma configuración, pero que haga uso de la conexión a la base de datos H2, en lugar de la base de datos de MySQL:
+
+
+```xml
+    
+    <!-- Sólo cambiar esta sección-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC" />
+            <dataSource type="POOLED">
+                <property name="driver" value="org.h2.Driver" />
+                <property name="url" value="jdbc:h2:file:./target/db/testdb;MODE=MYSQL" />
+                <property name="username" value="anonymous" />
+                <property name="password" value="" />
+            </dataSource>
+        </environment>
+    </environments>
+
+```
+
+9. Ahora, modifique la clase encargada de fabricar y mantener el 'inyector' de Guice, para que en lugar de hacer uso de un 'AbstractModule':
+
+```
+
+injector = createInjector(new AbstractModule() {
+
+            @Override
+            protected void configure() {
+                bind(ServiciosPacientes.class).to(ServiciosPacientesMock.class);
+            }
+
+        }
+        );
+
+```
+Haga uso del XMLMyBatisModule. Siguiendo el mismo esquema, el inyector debe 'instalar' el JdbcHelper de MySQL, agregar la configuración dada en el XML de MyBATIS, y hacer el 'bind' que permitirá a la lógica inyectarle los DAOs hechos con MyBATIS. Agregue también un segundo inyector (testInjector) igual al anterior, pero que haga la configuración haciendo uso del XML que define el uso de la base de datos embebida H2:
+
+```java
+
+
+        injector = createInjector(new XMLMyBatisModule() {
+
+            @Override
+            protected void initialize() {
+                install(JdbcHelper.MySQL);              
+                setClassPathResource("mybatis-config.xml");
+                bind(ServiciosPacientes.class).to(ServiciosPacientesGuiceMybatis.class);
+                bind(DaoEps.class).to(MyBatisDAOEps.class);                
+                bind(DaoPaciente.class).to(MyBatisDAOPaciente.class);
+            }
+
+        }
+        );
+
+        testInjector = createInjector(new XMLMyBatisModule() {
+
+            @Override
+            protected void initialize() {
+                install(JdbcHelper.PostgreSQL);
+                setClassPathResource("mybatis-config-h2.xml");
+                bind(ServiciosPacientes.class).to(ServiciosPacientesGuiceMybatis.class);
+                bind(DaoEps.class).to(MyBatisDAOEps.class);                
+                bind(DaoPaciente.class).to(MyBatisDAOPaciente.class);
+            }
+
+        }
+        );
+```
+
+De la misma manera, agregue métodos para obtener las instancias tanto de los servicios estándar, como de los servicios para pruebas:
+
+```java
+
+    public ServiciosPacientes getServiciosPaciente() {
+        return injector.getInstance(ServiciosPacientes.class);
+    }
+
+    public ServiciosPacientes getTestingServiciosPaciente() {
+        return testInjector.getInstance(ServiciosPacientes.class);
+    }
+
+```
+9. Rectifique que los DAOs implementados con MyBATIS ESCALEN adecuadamente las excepciones que puedan llegar a presentarse al hacer uso de los mappers. Por ejemplo:
+
+```java
+    @Override
+    public void actualizar(Paciente p) throws PersistenceException {
+        try{
+            pacienteMapper.actualizarPaciente(p);
+            .... //el resto de la implementación
+        }   
+        catch(Exception e){
+            throw new PersistenceException("Error al actualizar el paciente "+idPaciente,e);
+        }
+        
+    }
+```
+
+10. En la nueva versión 'real' de la lógica, además de usar los DAOs inyectados, demarque con la anotación @Transactional las operaciones de la lógica. De esta manera, mediante [aspectos](https://www.programcreek.com/2011/08/what-is-aspect-oriented-programming/) se hará transparente la creación de sesiones MyBATIS, el inicio de transacciones, y las operaciones de commit/rollback de acuerdo con el resultado de dichas transacciones:
+
+
+```java
+    @Transactional
+    @Override
+    public void agregarConsultaPaciente(String idPaciente, String tipoid, Consulta consulta) throws ExcepcionServiciosPacientes {
+         try {
+            daoConsulta.guardar(consulta,idPaciente,tipoid);
+        } catch (PersistenceException ex) {
+            Logger.getLogger(ServiciosPacientesGuiceMybatis.class.getName()).log(Level.SEVERE, null, ex);
+        }  
+    }
+```
+
+11. Ajuste las pruebas, de manera que las mismas hagan uso de la instancia de la capa lógica que hace uso de la base de datos volátil.
+
+12. Haga los ajustes restances necesarios para que la aplicación quede funcionando correctamente, accediendo a la base de datos MySQL.
