@@ -12,11 +12,49 @@
 
     </select>
     
-       
+           
     <select parameterType="map" id="loadPacientes" resultMap="PacienteResult">
+		select
+                p.id,
+                p.tipo_id,
+                p.nombre,
+                p.fecha_nacimiento,
 
+
+                e.nombre as eps_nombre,
+                e.nit as eps_nit,
+
+                c.idCONSULTAS,
+                c.fecha_y_hora,
+                c.resumen,
+                c.costo
+        
+                FROM  CM_PACIENTES as p left join CM_CONSULTAS as c on p.id=c.PACIENTES_id left join CM_EPS as e on p.eps_nit=e.nit
     </select>
-    
-
+          
                 
+                      
+                            
+                                  
+    <resultMap type='Consulta' id='ConsultaResult'>
+        <id property='id' column='idCONSULTAS'/>
+        <result property='fechayHora' column='c.fecha_y_hora'/>
+        <result property='resumen' column='resumen'/>  
+        <result property='costo' column='costo'/> 		
+    </resultMap>  
+        
+    <resultMap type='Eps' id='EpsResult'>
+        <id property='nombre' column='nombre'/>
+        <result property='nit' column='nit'/>
+    </resultMap> 
+    
+    <resultMap type='Paciente' id='PacienteResult'>
+        <id property='id' column='id'/>
+        <id property='tipoId' column='tipo_id'/>
+        <result property='nombre' column='nombre'/>  
+        <result property='fechaNacimiento' column='fecha_nacimiento'/>  
+        <association property="eps" javaType="Eps" columnPrefix='eps_'></association>      
+        <collection property='consultas' ofType='Consulta'></collection>		
+    </resultMap>    
+        
 </mapper>
