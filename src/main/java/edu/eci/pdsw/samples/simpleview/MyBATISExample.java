@@ -48,7 +48,8 @@ public class MyBATISExample {
      * @throws SQLException 
      */
     public static void main(String args[]) throws SQLException {
-        consultarPacientes();
+        //consultarPacientes();
+        //consultarPaciente(5555,"CC"); 
     }
 
     /**
@@ -67,7 +68,18 @@ public class MyBATISExample {
 
         List<Paciente> pacientes=pmapper.loadPacientes();
         for( int i =0; i<pacientes.size();i++){
-            System.out.println(pacientes.get(i).getNombre());
+            System.out.println(pacientes.get(i).getTipoId());
+            System.out.println(pacientes.get(i).getId());
         }
+    }
+    
+    public static void consultarPaciente(int id, String tipoId){
+        SqlSessionFactory sessionfact = getSqlSessionFactory();
+        SqlSession sqlss = sessionfact.openSession();
+        PacienteMapper pmapper=sqlss.getMapper(PacienteMapper.class);
+
+        Paciente paciente=pmapper.loadPacienteByID(id,tipoId);
+        System.out.println(paciente.getNombre());
+        
     }
 }
