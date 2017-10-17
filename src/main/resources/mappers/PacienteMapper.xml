@@ -6,8 +6,32 @@
   
 <mapper namespace="edu.eci.pdsw.persistence.impl.mappers.PacienteMapper">
     
-
+    <update id="actualizarConsulta">
+        UPDATE CM_CONSULTAS set fecha_y_hora=#{con.fechayHora},
+                                resumen=#{con.resumen},
+                                costo=#{costoc}                                
+        WHERE PACIENTES_id=#{idp} AND PACIENTES_tipo_id=#{tipoidp};
+    </update>
+    
+    <update id="actualizarPaciente">
+        UPDATE CM_PACIENTES set nombre=#{paci.nombre},
+                                fecha_nacimiento=#{paci.fechaNacimiento},eps_nit=#{paci.eps.nit}
+        WHERE id=#{paci.id} AND tipo_id=#{paci.tipoId}
+    </update>
+    
+    <insert id="insertConsulta" useGeneratedKeys="true" keyProperty="con.id">
+	INSERT INTO CM_CONSULTAS(idCONSULTAS,fecha_y_hora,resumen,costo,PACIENTES_id,PACIENTES_tipo_id)
         
+        VALUES (#{con.id},#{con.fechayHora},#{con.resumen},#{costoc},#{idp},#{tipoidp});
+    </insert>
+    
+    
+    <insert id="insertarPaciente">
+	INSERT INTO CM_PACIENTES(id,tipo_id,nombre,fecha_nacimiento,eps_nit)
+        VALUES (#{paci.id},#{paci.tipoId},#{paci.nombre},#{paci.fechaNacimiento},#{paci.eps.nit});
+            
+    </insert>
+     
     <select parameterType="map" id="loadPacienteByID" resultMap="PacienteResult">
         select
                 p.id,
@@ -24,7 +48,7 @@
                 c.costo
         
                 FROM  CM_PACIENTES as p left join CM_CONSULTAS as c on p.id=c.PACIENTES_id left join CM_EPS as e on p.eps_nit=e.nit
-                WHERE p.id= #{idp} AND p.tipo_id = #{tipoidp}
+                WHERE p.id= #{idp} AND p.tipo_id = #{tipoidp};
     </select>
                 
            

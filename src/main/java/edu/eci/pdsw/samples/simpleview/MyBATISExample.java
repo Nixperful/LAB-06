@@ -6,9 +6,12 @@
 package edu.eci.pdsw.samples.simpleview;
 
 import edu.eci.pdsw.persistence.impl.mappers.PacienteMapper;
+import edu.eci.pdsw.samples.entities.Consulta;
+import edu.eci.pdsw.samples.entities.Eps;
 import edu.eci.pdsw.samples.entities.Paciente;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.ibatis.io.Resources;
@@ -50,6 +53,20 @@ public class MyBATISExample {
     public static void main(String args[]) throws SQLException {
         //consultarPacientes();
         //consultarPaciente(5555,"CC"); 
+        
+        
+        SqlSessionFactory sessionfact = getSqlSessionFactory();
+        SqlSession sqlss = sessionfact.openSession();
+        PacienteMapper pmap = sqlss.getMapper(PacienteMapper.class);
+        
+        Eps eps = new Eps("SaludTotal", "8456986");
+        Paciente p = new Paciente(888, "CC", "IT", new Date(2000,01,01), eps);
+        
+        registrarNuevoPaciente(pmap,p);
+        sqlss.commit();
+        actualizarPaciente(pmap,p);
+        sqlss.commit();
+        
     }
 
     /**
@@ -57,19 +74,27 @@ public class MyBATISExample {
      * @param pmap mapper a traves del cual se hará la operacion
      * @param p paciente a ser registrado
      */
-    public void registrarNuevoPaciente(PacienteMapper pmap, Paciente p){
+    public static void registrarNuevoPaciente(PacienteMapper pmap, Paciente p){
         
+
+        pmap.insertarPaciente(p);
+        System.out.println("PACIENTE:" +p.getNombre()+"  insertado..."); 
+        
+        
+        Consulta c=new Consulta(new Date(2017,12,01),"Dolor Muelas",20000);
+        pmap.insertConsulta(c,p.getId(), p.getTipoId(),(int)c.getCosto());
+        System.out.println("CONSULTA insertada...");
+         	
     }
     
     public static void consultarPacientes(){
         SqlSessionFactory sessionfact = getSqlSessionFactory();
         SqlSession sqlss = sessionfact.openSession();
         PacienteMapper pmapper=sqlss.getMapper(PacienteMapper.class);
-
+        
         List<Paciente> pacientes=pmapper.loadPacientes();
         for( int i =0; i<pacientes.size();i++){
-            System.out.println(pacientes.get(i).getTipoId());
-            System.out.println(pacientes.get(i).getId());
+            System.out.println(pacientes.get(i).getNombre());
         }
     }
     
@@ -82,4 +107,21 @@ public class MyBATISExample {
         System.out.println(paciente.getNombre());
         
     }
+    
+    /**
+    * @obj Actualizar los datos básicos del paciente, con sus * respectivas consultas.
+    * @pre El paciente p ya existe
+    * @param pmap mapper a traves del cual se hará la operacion
+    * @param p paciente a ser registrado
+    */
+    public static void actualizarPaciente(PacienteMapper pmap, Paciente p){
+        pmap.actualizarPaciente(p);
+        System.out.println("PACIENTE:" +p.getNombre()+"  Actualizado..."); 
+        
+        
+        Consulta c=new Consulta(new Date(2017,12,02),"Dolor Muelas",20000);
+        pmap.actualizarConsulta(c,p.getId(), p.getTipoId(),(int)c.getCosto());
+        System.out.println("CONSULTA ACTUALIZADA PARA EL USUARIO...");
+    }
+    
 }
