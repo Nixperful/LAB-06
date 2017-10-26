@@ -5,6 +5,7 @@
  */
 package edu.eci.pdsw.samples.simpleview;
 
+import edu.eci.pdsw.persistence.impl.mappers.EpsMapper;
 import edu.eci.pdsw.persistence.impl.mappers.PacienteMapper;
 import edu.eci.pdsw.samples.entities.Consulta;
 import edu.eci.pdsw.samples.entities.Eps;
@@ -58,14 +59,17 @@ public class MyBATISExample {
         SqlSessionFactory sessionfact = getSqlSessionFactory();
         SqlSession sqlss = sessionfact.openSession();
         PacienteMapper pmap = sqlss.getMapper(PacienteMapper.class);
+    
         
         Eps eps = new Eps("SaludTotal", "8456986");
-        Paciente p = new Paciente(888, "CC", "IT", new Date(2000,01,01), eps);
+        Paciente p = new Paciente(568, "CC", "IT", new Date(2000,02,01), eps);
         
-        registrarNuevoPaciente(pmap,p);
-        sqlss.commit();
-        actualizarPaciente(pmap,p);
-        sqlss.commit();
+        /*registrarNuevoPaciente(pmap,p);
+        sqlss.commit();*/
+        /*actualizarPaciente(pmap,p);
+        sqlss.commit();*/
+        
+        consultarEPS();
         
     }
 
@@ -95,6 +99,17 @@ public class MyBATISExample {
         List<Paciente> pacientes=pmapper.loadPacientes();
         for( int i =0; i<pacientes.size();i++){
             System.out.println(pacientes.get(i).getNombre());
+        }
+    }
+    
+    public static void consultarEPS(){
+        SqlSessionFactory sessionfact = getSqlSessionFactory();
+        SqlSession sqlss = sessionfact.openSession();
+        EpsMapper pmapper=sqlss.getMapper(EpsMapper.class);
+        
+        List<Eps> eps=pmapper.loadAllEPS();
+        for( int i =0; i<eps.size();i++){
+            System.out.println(eps.get(i).getNit());
         }
     }
     
